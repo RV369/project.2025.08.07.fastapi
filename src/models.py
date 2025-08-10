@@ -21,6 +21,3 @@ class User(Base):
     username: Mapped[str] = mapped_column(unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column()
     is_active: Mapped[bool] = mapped_column(default=True)
-
-    def __str__(self):
-        return self.username
