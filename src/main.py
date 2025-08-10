@@ -1,4 +1,5 @@
 from datetime import timedelta
+from typing import Annotated
 
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.security import OAuth2PasswordRequestForm
@@ -51,10 +52,10 @@ def register(user: UserCreate, db: Session = Depends(get_db)) -> User:
 
 @app.post('/token', response_model=Token)
 async def login_for_access_token(
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     db: Session = Depends(get_db),
 ) -> Token:
-    """Выдача токена доступа по логину и паролю."""
+    """Выдача JWT-токена доступа по логину и паролю."""
     user = db.query(User).filter(User.username == form_data.username).first()
     if not user or not verify_password(
         form_data.password,
@@ -75,15 +76,26 @@ async def login_for_access_token(
 
 @app.get('/users/me', response_model=UserSchema)
 async def read_users_me(
-    current_user: User = Depends(get_current_active_user),
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> User:
+    """Эндпоинт для получения информации о текущем пользователе."""
     return current_user
 
 
 @app.get('/protected')
 async def protected_route(
-    current_user: User = Depends(get_current_active_user),
+    current_user: Annotated[User, Depends(get_current_active_user)],
 ) -> dict:
+    """
+    Защищённый эндпоинт, доступный только аутентифицированным пользователям.
+    """
     return {
         'message': f'Привет, {current_user.username}! Это защищённый маршрут.',
     }
+
+
+@app.get('/users/me/items/')
+async def read_own_items(
+    current_user: Annotated[User, Depends(get_current_active_user)],
+) -> list:
+    return [{'item_id': 'Foo', 'owner': current_user.username}]

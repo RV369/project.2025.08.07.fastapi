@@ -21,6 +21,16 @@ git@github.com:RV369/project.2025.08.07.fastapi.git
 docker compose up
 ```
 
+Для развертывания необходимо:
+
+- Скопировать файл docker-compose.production.yml
+- Создать файл .env с содержимым указанным в файле .env.example
+- Запустить Docker
+- команда для запуска скачивания образа и сборки контейнера:
+```sh
+docker compose -f docker-compose.production.yml up
+```
+
 ##  Документация доступна по адресам
 
 - <http://127.0.0.1:8000/docs>
